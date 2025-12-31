@@ -30,6 +30,21 @@ def get_ebit(ticker):
 
      return ebit_list
    
+# calculate ebit margin: ebit/revenue
+
+def get_ebit_margin(ticker):
+     ebit = get_ebit(ticker)
+     revenue = get_revenues(ticker)
+
+     ebit_margins = []
+
+     # loop to calc ebit margins
+     for i in range(len(ebit)):
+          temp_margin = ebit[i]/revenue[i]
+          ebit_margins.append(temp_margin)
+
+     return ebit_margins
+
 
 
     
