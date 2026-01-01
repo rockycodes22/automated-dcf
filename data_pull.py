@@ -45,7 +45,33 @@ def get_ebit_margin(ticker):
 
      return ebit_margins
 
+# function to calculate historical growth rates
+def get_growth_rates(revenues):
+     growth_rates = []
 
+     #loop to calc rates
+     for i in range(1,len(revenues)):
+          temp_rate = revenues[i]/revenues[i-1] - 1
+          growth_rates.append(temp_rate)
+     
+     return growth_rates
+          
+#revenues = get_revenues("AAPL")
+#growth_rates = get_growth_rates(revenues)
+          
+# calculates the average growth rate
+def average_growth(growth_rates):
+     return sum(growth_rates)/len(growth_rates)
 
-    
+# forecasts the revenues
+def forecast_revenues(last_revenue, growth_rate, forecast_years):
+     forecasts = []
+     revenue = last_revenue
+     
+     #loop that calculates forecasts
+     for i in range(forecast_years):
+          revenue = revenue * (1 + growth_rate)
+          forecasts.append(revenue)
+     return forecasts 
 
+print(forecast_revenues(100, 0.05, 3))
