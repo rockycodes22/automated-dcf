@@ -143,4 +143,26 @@ def forecast_nwc(forecasted_revenues, nwc_percentage):
           forecasts.append(temp_nwc)
      return forecasts 
 
-print(forecast_nwc([100, 110, 121], 0.02))
+#------------------------
+# UFCF
+#------------------------
+
+def forecast_ufcf(nopat, da, capex, nwc):
+     forecasts = []
+     
+     #loop to calc ufcf
+     for i in range(len(nopat)):
+          temp_ufcf = nopat[i] + da[i] - capex[i] - nwc[i]
+          forecasts.append(temp_ufcf)
+     return forecasts
+
+def discount_ufcf(ufcf, wacc):
+     forecasts = []
+
+     #loop to discount ufcf
+     for i in range (len(ufcf)):
+          temp_ufcf = ufcf[i]/(1+wacc)**(i+1)
+          forecasts.append(temp_ufcf)
+     return forecasts
+
+print(discount_ufcf([100, 100, 100], 0.10))
