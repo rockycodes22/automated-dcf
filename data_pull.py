@@ -156,6 +156,8 @@ def forecast_ufcf(nopat, da, capex, nwc):
           forecasts.append(temp_ufcf)
      return forecasts
 
+
+#discount ufcf
 def discount_ufcf(ufcf, wacc):
      forecasts = []
 
@@ -165,4 +167,27 @@ def discount_ufcf(ufcf, wacc):
           forecasts.append(temp_ufcf)
      return forecasts
 
-print(discount_ufcf([100, 100, 100], 0.10))
+#------------------------
+#TERMINAL VALUE & EV
+#------------------------
+
+def find_terminal_value(ufcf, wacc, growth_rate):
+     last_ufcf = ufcf[len(ufcf)-1]
+     ufcf_n_plus_1 = last_ufcf * (1 + growth_rate)
+     n = len(ufcf)
+
+     tv = ufcf_n_plus_1/(wacc-growth_rate)
+     pvtv = tv/(1+wacc)**n
+
+     return pvtv
+
+#calc EV
+def find_ev(pv_ufcf, pv_tv):
+     return pv_tv + sum(pv_ufcf)
+
+
+#finds implied share price
+def find_implied_share_price(ev,cash,debt,shares):
+     net_debt = debt - cash
+     equity_value = ev-net_debt
+     return equity_value/shares
