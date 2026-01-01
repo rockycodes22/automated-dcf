@@ -2,6 +2,10 @@
 import yfinance as yf
 import pandas as pd
 
+#------------------------
+#GET FUNCTIONS
+#------------------------
+
 #  get revenues from a ticker
 
 def get_revenues(ticker):
@@ -16,7 +20,6 @@ def get_revenues(ticker):
     return revenue_list
 
 
-##get_revenues("AAPL")
 
 # Gets the Ebits using a ticker symbol
 def get_ebit(ticker):
@@ -55,13 +58,22 @@ def get_growth_rates(revenues):
           growth_rates.append(temp_rate)
      
      return growth_rates
-          
-#revenues = get_revenues("AAPL")
-#growth_rates = get_growth_rates(revenues)
+
+#------------------------
+#AVERAGE FUNCTIONS
+#------------------------
           
 # calculates the average growth rate
 def average_growth(growth_rates):
      return sum(growth_rates)/len(growth_rates)
+
+#calculates the average ebit margin
+def average_ebit_margin(ebit_margins):
+     return sum(ebit_margins)/len(ebit_margins)
+
+#------------------------
+#FORECAST FUNCTIONS
+#------------------------
 
 # forecasts the revenues
 def forecast_revenues(last_revenue, growth_rate, forecast_years):
@@ -75,6 +87,7 @@ def forecast_revenues(last_revenue, growth_rate, forecast_years):
     
      return forecasts 
 
+
 # forecasts the ebits
 def forecast_ebits(forecasted_revenues, ebit_margin):
      forecasts = []
@@ -86,3 +99,48 @@ def forecast_ebits(forecasted_revenues, ebit_margin):
     
      return forecasts 
 
+
+# forecasts the NOPAT
+def forecast_nopat(forecasted_ebits, tax_rate):
+     forecasts = []
+
+     #loop to calc NOPAT
+     for i in forecasted_ebits:
+          temp_nopat = i * (1-tax_rate)
+          forecasts.append(temp_nopat)
+     return forecasts 
+
+
+# forecasts the D&A 
+def forecast_da(forecasted_revenues, da_percentage):
+     forecasts = []
+
+     # loop to calc D&A
+     for i in forecasted_revenues:
+          temp_da = i * da_percentage
+          forecasts.append(temp_da)
+     return forecasts 
+
+
+# forecasts the Capex
+def forecast_capex(forecasted_revenues, capex_percentage):
+     forecasts = []
+
+     # loop to calc capex
+     for i in forecasted_revenues:
+          temp_capex = i * capex_percentage
+          forecasts.append(temp_capex)
+     return forecasts 
+
+
+# forecasts the nwc
+def forecast_nwc(forecasted_revenues, nwc_percentage):
+     forecasts = []
+
+     # loop to calc nwc
+     for i in forecasted_revenues:
+          temp_nwc = i * nwc_percentage
+          forecasts.append(temp_nwc)
+     return forecasts 
+
+print(forecast_nwc([100, 110, 121], 0.02))
