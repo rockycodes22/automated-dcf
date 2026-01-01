@@ -72,6 +72,17 @@ def forecast_revenues(last_revenue, growth_rate, forecast_years):
      for i in range(forecast_years):
           revenue = revenue * (1 + growth_rate)
           forecasts.append(revenue)
+    
      return forecasts 
 
-print(forecast_revenues(100, 0.05, 3))
+# forecasts the ebits
+def forecast_ebits(forecasted_revenues, ebit_margin):
+     forecasts = []
+
+     #loop to calc ebits 
+     for i in forecasted_revenues:
+          temp_ebit = i * ebit_margin
+          forecasts.append(temp_ebit)
+    
+     return forecasts 
+
