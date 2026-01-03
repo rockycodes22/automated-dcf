@@ -2,6 +2,7 @@
 import pandas as pd
 from dcf_model import run_dcf
 from openpyxl import load_workbook
+from openpyxl.formatting.rule import ColorScaleRule
 
 #pandas dataframe
 df = pd.read_excel("dcf_inputs.xlsx", sheet_name="inputs", header=None)
@@ -55,6 +56,23 @@ with pd.ExcelWriter(
     )
 
 # ------------------------
+# EXPORT SENSITIVITY TABLE
+# ------------------------
+
+sens_df = results["valuation"]["sensitivity"]
+
+with pd.ExcelWriter(
+    "dcf_inputs.xlsx",
+    engine="openpyxl",
+    mode="a",
+    if_sheet_exists="replace"
+) as writer:
+    sens_df.to_excel(
+        writer,
+        sheet_name="sensitivity"
+    )
+
+# ------------------------
 # FORMAT EXCEL OUTPUT
 # ------------------------
 
@@ -71,7 +89,7 @@ for row in range(2, ws.max_row + 1):
         else:
             cell.number_format = '$#,##0.00'
 
-# Auto-size columns (this part WAS already correct)
+# Auto-size columns 
 for column in ws.columns:
     max_length = 0
     col_letter = column[0].column_letter
@@ -84,4 +102,38 @@ for column in ws.columns:
 
 wb.save("dcf_inputs.xlsx")
 
+# ------------------------
+# FORMAT SENSITIVITY TABLE
+# ------------------------
+ws = wb["sensitivity"]
 
+# Auto-size columns
+for column in ws.columns:
+    max_length = 0
+    col_letter = column[0].column_letter
+    for cell in column:
+        if cell.value is not None:
+            max_length = max(max_length, len(str(cell.value)))
+    ws.column_dimensions[col_letter].width = max_length + 2
+
+# Currency format for body 
+for row in ws.iter_rows(min_row=2, min_col=2):
+    for cell in row:
+        if isinstance(cell.value, (int, float)):
+            cell.number_format = '$#,##0'
+
+# Optional: color scale (green = higher EV, red = lower EV)
+last_row = ws.max_row
+last_col = ws.max_column
+color_rule = ColorScaleRule(
+    start_type='min', start_color='F8696B',
+    mid_type='percentile', mid_value=50, mid_color='FFEB84',
+    end_type='max', end_color='63BE7B'
+)
+
+ws.conditional_formatting.add(
+    f"B2:{ws.cell(row=last_row, column=last_col).coordinate}",
+    color_rule
+)
+
+wb.save("dcf_inputs.xlsx")
