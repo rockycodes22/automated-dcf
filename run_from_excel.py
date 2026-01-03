@@ -1,6 +1,7 @@
 #imports
 import pandas as pd
 from dcf_model import run_dcf
+from openpyxl import load_workbook
 
 #pandas dataframe
 df = pd.read_excel("dcf_inputs.xlsx", sheet_name="inputs", header=None)
@@ -11,7 +12,9 @@ df.columns = ["label", "value"]
 ticker = df.loc[df["label"] == "Ticker", "value"].values[0]
 
 
-#assumptions 
+#------------------------
+#ASSUMPTIONS FROM EXCEL
+#------------------------
 assumptions = {
     "wacc": df.loc[df["label"] == "WACC", "value"].values[0],
     "terminal_g": df.loc[df["label"] == "Terminal Growth", "value"].values[0],
@@ -29,3 +32,56 @@ assumptions = {
 
 results = run_dcf(ticker, assumptions)
 print(results["summary"])
+
+#------------------------
+#EXPORT TO EXCEL
+#------------------------
+
+summary_df = pd.DataFrame(
+    list(results["summary"].items()),
+    columns=["Metric", "Value"]
+)
+
+with pd.ExcelWriter(
+    "dcf_inputs.xlsx",
+    engine="openpyxl",
+    mode="a",
+    if_sheet_exists="replace"
+) as writer:
+    summary_df.to_excel(
+        writer,
+        sheet_name="output",
+        index=False
+    )
+
+# ------------------------
+# FORMAT EXCEL OUTPUT
+# ------------------------
+
+wb = load_workbook("dcf_inputs.xlsx")
+ws = wb["output"]
+
+# Format Value column as currency
+for row in range(2, ws.max_row + 1):
+    cell = ws[f"B{row}"]
+
+    if isinstance(cell.value, (int, float)):
+        if cell.value > 1_000_000:
+            cell.number_format = '$#,##0'
+        else:
+            cell.number_format = '$#,##0.00'
+
+# Auto-size columns (this part WAS already correct)
+for column in ws.columns:
+    max_length = 0
+    col_letter = column[0].column_letter
+
+    for cell in column:
+        if cell.value is not None:
+            max_length = max(max_length, len(str(cell.value)))
+
+    ws.column_dimensions[col_letter].width = max_length + 2
+
+wb.save("dcf_inputs.xlsx")
+
+
